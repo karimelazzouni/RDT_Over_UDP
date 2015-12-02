@@ -3,6 +3,7 @@ import threading
 import random
 import pickle
 import packet as pac
+import stop_wait as saw_class
 
 def handler(packet, rec_addr,UDP_IP):
 	print("Received packet from host ",rec_addr)
@@ -21,6 +22,7 @@ def handler(packet, rec_addr,UDP_IP):
 	t_sock.sendto(bytes(str(t_port), 'UTF-8'),rec_addr)
 
 	# assume a stop-and-wait instance is used
+	saw = saw_class.StopAndWait(packet.data)
 
 if __name__ == "__main__":
 
