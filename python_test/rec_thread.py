@@ -14,7 +14,7 @@ def handler(data, rec_addr,UDP_IP):
 	print("New socket created on port ",t_port)
 	t_sock.sendto(bytes(str(t_port), 'UTF-8'),rec_addr)
 
-	#
+	# 
 
 if __name__ == "__main__":
 
