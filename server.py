@@ -3,26 +3,27 @@ import threading
 import random
 import pickle
 import packet as pac
-import stop_wait as saw_class
+import stop_wait_server as sws
 
 def handler(packet, rec_addr,UDP_IP):
 	print("Received packet from host ",rec_addr)
-	print("cksum: ", packet.cksum)
-	print("len: ", packet.len)
-	print("seqno: ", packet.seqno)
-	print("data: ", packet.data)
+	# print("cksum: ", packet.cksum)
+	# print("len: ", packet.len)
+	# print("seqno: ", packet.seqno)
+	# print("data: ", packet.data)
 
-	print("Sending back ", t.getName())
+	# print("Sending back ", t.getName())
 
 	# acquire a vacant socket
 	t_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	t_sock.bind((UDP_IP,0))
 	t_port = t_sock.getsockname()[1]
-	print("New socket created on port ",t_port)
+	# print("New socket created on port ",t_port)
 	t_sock.sendto(bytes(str(t_port), 'UTF-8'),rec_addr)
 
 	# assume a stop-and-wait instance is used
-	saw = saw_class.StopAndWait(packet.data)
+	saw = sws.StopAndWait(packet.data, t_sock, rec_addr, 10)
+	saw.send()
 
 if __name__ == "__main__":
 
