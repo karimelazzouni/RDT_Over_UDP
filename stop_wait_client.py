@@ -23,20 +23,25 @@ class StopAndWait :
 
 
         print("Received packet ", packet.seqno)
-        
-        for i in range(len(packet.data)) :
-            self.file.write(packet.data[i])
-        
+        if packet.seqno == 0 :
+        	print ("Close packet received, file received successfully")
+        	return 0
+        else :
+        	for i in range(len(packet.data)) :
+        		self.file.write(packet.data[i])
         self.file.flush()
-        # os.fsync()
         ack_packet = ack.Ack(0, packet.seqno)
-        # self.socket.sendto(pick.dumps(ack_packet), self.dest)
+        self.socket.sendto(pick.dumps(ack_packet), self.dest)
+        return 1
 
     def recv_file(self):
         while 1:
             try:
-                self.recv_one_packet()
-            except self.socket.timeout:
-                print("File Received Successfully.")
+                val = self.recv_one_packet()
+            except socket.timeout:
+                print("Timeout: Connection closed unexpectedly")
                 self.file.close()
                 break
+
+            if not val:
+            	break

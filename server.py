@@ -5,48 +5,50 @@ import pickle
 import packet as pac
 import stop_wait_server as sws
 
-def handler(packet, rec_addr,UDP_IP):
+def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS):
 	print("Received packet from host ",rec_addr)
-	# print("cksum: ", packet.cksum)
-	# print("len: ", packet.len)
-	# print("seqno: ", packet.seqno)
-	# print("data: ", packet.data)
-
-	# print("Sending back ", t.getName())
-
+	print("Acquiring new vacant socket")
 	# acquire a vacant socket
 	t_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	t_sock.bind((UDP_IP,0))
+	t_sock.bind((SERVER_IP,0))
 	t_port = t_sock.getsockname()[1]
-	# print("New socket created on port ",t_port)
-	t_sock.sendto(bytes(str(t_port), 'UTF-8'),rec_addr)
+	print("New socket created on port ",t_port)
+	t_sock.sendto(pickle.dumps(t_port),rec_addr)
 
 	# assume a stop-and-wait instance is used
-	saw = sws.StopAndWait(packet.data, t_sock, rec_addr, 10)
+	saw = sws.StopAndWait(packet.data, t_sock, rec_addr, TIMEOUT,P_LOSS)
 	saw.send()
+	print("Done sending, destroying connection")
+	t_sock.close()
+
+def read_in(file_name) :
+	with open(file_name) as f :
+		SERVER_PORT = int(f.readline())
+		MAX_WINDOW = int(f.readline())
+		P_LOSS = float(f.readline())
+		TIMEOUT = int(f.readline())
+	return (SERVER_PORT,MAX_WINDOW,P_LOSS,TIMEOUT)
+		
+
 
 if __name__ == "__main__":
 
-	UDP_IP = "127.0.0.1"
-	UDP_PORT = 55555
-	buf = 1024
-
-	addr = (UDP_IP,UDP_PORT)
+	BUF_SIZE = 4096
+	SERVER_IP = "127.0.0.1"
+	(SERVER_PORT,MAX_WINDOW,P_LOSS,TIMEOUT) = read_in("/tmp/server/server.in")
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-	sock.bind((addr))
+	sock.bind((SERVER_IP,SERVER_PORT))
 
 	i = 0
 	while 1:
 		print("Server is listening for connections")
-		packet, rec_addr = sock.recvfrom(buf)
+		packet, rec_addr = sock.recvfrom(BUF_SIZE)
 		p = pickle.loads(packet)
 
-		# thread.start_new_thread(handler, (packet,rec_addr))
-		t = threading.Thread(target=handler,args=(p,rec_addr,UDP_IP,))
+		t = threading.Thread(target=handler,args=(p,rec_addr,SERVER_IP,TIMEOUT,P_LOSS,))
 		t.setName(str(i))
 		i = i+1
 		t.start()
 
-	serversocket.close()
+	sock.close()
