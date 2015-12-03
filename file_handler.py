@@ -11,4 +11,6 @@ class File_handler:
             if not byte_s:
                 break
             byte_array.append(byte_s)
+        if len(byte_array) == 0:
+            return None
         return byte_array
