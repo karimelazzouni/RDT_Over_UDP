@@ -53,7 +53,7 @@ class StopAndWait :
 def timer_handler(self, packet):
     # retransmit packet to the same client
 	print ("\tTimeout: retransmitting packet ", packet.seqno)
-	if not PLS.lose_packet(0.5) :
+	if not PLS.lose_packet(self.p_loss) :
 		(self.socket).sendto(pick.dumps(packet), self.dest)
 	self.timer.cancel()
 	self.timer = threading.Timer(self.time_out,timer_handler,args=(self, packet,))

@@ -4,6 +4,7 @@ import pickle as pick
 import threading
 import ack
 import os
+import checksum
 
 class StopAndWait : 
 
@@ -20,19 +21,24 @@ class StopAndWait :
     def recv_one_packet(self):
         byte,addr = self.socket.recvfrom(self.BUF_SIZE)
         packet = pick.loads(byte)
-
-
         print("Received packet ", packet.seqno)
-        if packet.seqno == 0 :
-        	print ("Close packet received, file received successfully")
-        	return 0
+        rec_cksum = packet.cksum
+        calc_cksum = checksum.gen_cksum(checksum.string_to_byte_arr(packet.data))
+        if rec_cksum != calc_cksum and packet.seqno != 0 :
+        	print ("\tBy comparing the checksum received and that calculated: packet corrupted. Discard.")
+        	return 1
+
         else :
-        	for i in range(len(packet.data)) :
-        		self.file.write(packet.data[i])
-        self.file.flush()
-        ack_packet = ack.Ack(0, packet.seqno)
-        self.socket.sendto(pick.dumps(ack_packet), self.dest)
-        return 1
+	        if packet.seqno == 0 :
+	        	print ("Close packet received, file received successfully")
+	        	return 0
+	        else :
+	        	for i in range(len(packet.data)) :
+	        		self.file.write(packet.data[i])
+	        self.file.flush()
+	        ack_packet = ack.Ack(0, packet.seqno)
+	        self.socket.sendto(pick.dumps(ack_packet), self.dest)
+	        return 1
 
     def recv_file(self):
         while 1:
