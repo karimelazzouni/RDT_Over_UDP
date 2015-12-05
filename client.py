@@ -35,5 +35,5 @@ data, addr = sock.recvfrom(BUF_SIZE)
 # sw = swc.StopAndWait(FILE_DEST,sock, addr, TIMEOUT)
 # sw.recv_file()
 
-ser = sr.SelectiveRepeat(FILE_DEST, sock, addr, TIMEOUT, 5)
+ser = sr.SelectiveRepeat(FILE_DEST, sock, addr, TIMEOUT, REC_WINDOW)
 ser.recv_file()

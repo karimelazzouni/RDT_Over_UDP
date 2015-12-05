@@ -3,15 +3,17 @@ import socket
 import pickle as pick
 import threading
 import pac_ack_t as packt
+import PLS
 
 class SelectiveRepeat:
     BUF_SIZE = 4096
-    def __init__(self, file_name, t_sock, rec_addr, time_out, window_size):
+    def __init__(self, file_name, t_sock, rec_addr, time_out, p_loss, window_size):
         self.socket        = t_sock
         self.dest          = rec_addr
         self.time_out      = time_out
         self.time_out_sock = time_out*10
         self.gen           = pac_gen.PacketGen(file_name)
+        self.p_loss 	   = p_loss
         self.list_size     = window_size 
         self.socket.settimeout(self.time_out_sock)
         
@@ -32,8 +34,9 @@ class SelectiveRepeat:
     def send_packet(self, packet):
         index = packet.seqno - self.base_seqno
         if index >= 0:
-            print("SEQNO: ", packet.seqno)
-            self.socket.sendto(pick.dumps(packet), self.dest)
+            print("Sending: packet ", packet.seqno)
+            if not PLS.lose_packet(self.p_loss) :
+            	self.socket.sendto(pick.dumps(packet), self.dest)
             self.packt.timer_list[packet.seqno - self.base_seqno] = threading.Timer(self.time_out,self.timer_handler,args=(packet,))
             self.packt.timer_list[packet.seqno - self.base_seqno].start()
 
@@ -54,7 +57,8 @@ class SelectiveRepeat:
                 self.check_list(ackno)
                 if len(self.packt.ack_list) == 0:
                     end = (self.gen).gen_close_packet()
-                    (self.socket).sendto(pick.dumps(end), self.dest)
+                    if not PLS.lose_packet(self.p_loss) :
+                    	(self.socket).sendto(pick.dumps(end), self.dest)
                     break
             else :
                 print("\tWrong sender")
@@ -76,7 +80,6 @@ class SelectiveRepeat:
             self.packt.ack_list[ackno - self.base_seqno] = 1
             if self.packt.ack_list[0] == 1:
                 while self.packt.ack_list[0] == 1:
-                    print("previous base_seqno: ", self.base_seqno)
                     self.packt.packet_list.pop(0)
                     self.packt.ack_list.pop(0)
                     self.packt.timer_list.pop(0)
@@ -91,12 +94,10 @@ class SelectiveRepeat:
                         self.packt.packet_list.append(packet)
                         self.packt.ack_list.append(0)
                         self.packt.timer_list.append(None)
-                        self.socket.sendto(pick.dumps(packet), self.dest)
-                        print("SEQNO: ", packet.seqno, " BASE: ", self.base_seqno)
+                        if not PLS.lose_packet(self.p_loss) :
+                        	self.socket.sendto(pick.dumps(packet), self.dest)
                         self.packt.timer_list[packet.seqno - self.base_seqno] = threading.Timer(self.time_out,self.timer_handler,args=(packet,))
                         self.packt.timer_list[packet.seqno - self.base_seqno].start()
-
-                    print("later base_seqno: ", self.base_seqno)
 
         self.lock.release()
 
@@ -113,11 +114,12 @@ class SelectiveRepeat:
 
     def timer_handler(self, packet):
         self.lock.acquire()
-
+        print ("\tTimeout: retransmitting packet ", packet.seqno)
         # self.packt.timer_list[packet.seqno - self.base_seqno].cancel()
         index = packet.seqno - self.base_seqno
         if index >= 0:
-            self.socket.sendto(pick.dumps(packet), self.dest)
+            if not PLS.lose_packet(self.p_loss) :
+            	self.socket.sendto(pick.dumps(packet), self.dest)
             self.packt.timer_list[packet.seqno - self.base_seqno] = threading.Timer(self.time_out, self.timer_handler, args=(packet, ))
             self.packt.timer_list[packet.seqno - self.base_seqno].start()
 
