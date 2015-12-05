@@ -4,6 +4,7 @@ import random
 import pickle
 import packet as pac
 import stop_wait_server as sws
+import selective_repeat_server as sr
 
 def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS):
 	print("Received packet from host ",rec_addr)
@@ -16,8 +17,10 @@ def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS):
 	t_sock.sendto(pickle.dumps(t_port),rec_addr)
 
 	# assume a stop-and-wait instance is used
-	saw = sws.StopAndWait(packet.data, t_sock, rec_addr, TIMEOUT,P_LOSS)
-	saw.send()
+	# saw = sws.StopAndWait(packet.data, t_sock, rec_addr, TIMEOUT,P_LOSS)
+	# saw.send()
+	ser = sr.SelectiveRepeat(packet.data, t_sock, rec_addr, TIMEOUT, 5)
+	ser.send_file()
 	print("Done sending, destroying connection")
 	t_sock.close()
 
