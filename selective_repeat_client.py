@@ -14,7 +14,7 @@ class SelectiveRepeat:
         self.sock_time_out = time_out*10
         self.list_size     = window_size
         self.file          = open(file_name, 'ab')
-        self.socket.settimeout(self.time_out_sock)
+        self.socket.settimeout(self.sock_time_out)
 
         self.buffer     = []
         self.base_seqno = 1 #Assuming the first seqno = 1
@@ -25,17 +25,16 @@ class SelectiveRepeat:
             self.buffer.append(None)
 
     def recv_one_packet(self) :
-        byte, addr = self.socket.recvfrom(self.BUF_SIZE)
+        byte, addr = (self.socket).recvfrom(self.BUF_SIZE)
 
         packet = pick.loads(byte)
 
-        if addr == self.dest
+        if addr == self.dest :
             self.check_packet(packet)
             print("Received packet ", packet.seqno)
+            if packet.seqno == 0 :
+                return 0
             return 1
-
-        if packet.seqno == 0
-            return 0
         
     def check_packet(self, packet) :
         index = packet.seqno - self.base_seqno
@@ -63,13 +62,16 @@ class SelectiveRepeat:
                 self.file.flush()
                 self.buffer.pop(0)
                 self.buffer.append(None)
-                self.base_seqno ++
+                self.base_seqno = self.base_seqno + 1
     
     def recv_file(self) :
         while 1:
             try:
-                self.recv_one_packet()
+                in_progress = self.recv_one_packet()
+                if not in_progress:
+                    print("File Received Successfully.")
+                    self.file.close()
+                    break
             except self.socket.timeout:
-                print("File Received Successfully.")
                 self.file.close()
                 break

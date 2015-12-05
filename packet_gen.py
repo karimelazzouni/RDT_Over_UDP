@@ -8,7 +8,7 @@ class PacketGen:
 	CHUNK_SIZE = 500
 
 	def __init__(self, file_name=None) :
-		self.init_seqno = ((random.randint(0,sys.maxsize)%100)+1) # randomly generated sequence number
+		self.init_seqno = 1 #((random.randint(0,sys.maxsize)%100)+1) # randomly generated sequence number
 		self.next_seqno = self.init_seqno
 		if not file_name == None :
 			self.file_name = file_name
