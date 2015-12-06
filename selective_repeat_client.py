@@ -14,6 +14,7 @@ class SelectiveRepeat:
 		self.time_out      = time_out
 		self.sock_time_out = time_out*10
 		self.list_size     = window_size
+		self.threshold	   = self.list_size/2
 		self.file          = open(file_name, 'ab')
 		self.socket.settimeout(self.sock_time_out)
 

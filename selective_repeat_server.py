@@ -48,7 +48,7 @@ class SelectiveRepeat:
             try :
                 ack, addr = (self.socket).recvfrom(self.BUF_SIZE)
             except self.socket.timeout :
-                print ("Error: 10 retransmissions of packet have occured yet no ACKs were received. Aborting.")
+                print ("Error: Client have not been responding for server's messages for too long. Aborting.")
                 return None
 
             if addr == self.dest: # correct ACK received
@@ -57,8 +57,7 @@ class SelectiveRepeat:
                 self.check_list(ackno)
                 if len(self.packt.ack_list) == 0:
                     end = (self.gen).gen_close_packet()
-                    if not PLS.lose_packet(self.p_loss) :
-                    	(self.socket).sendto(pick.dumps(end), self.dest)
+                    (self.socket).sendto(pick.dumps(end), self.dest)
                     break
             else :
                 print("\tWrong sender")
@@ -76,6 +75,7 @@ class SelectiveRepeat:
         self.lock.acquire()
         index = ackno - self.base_seqno
         if index >=0 :
+            # print("Index: ", index, " ackno: ", ackno, " BASE_SEQNO: ", self.base_seqno)
             self.packt.timer_list[ackno - self.base_seqno].cancel()
             self.packt.ack_list[ackno - self.base_seqno] = 1
             if self.packt.ack_list[0] == 1:
