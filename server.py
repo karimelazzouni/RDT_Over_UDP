@@ -5,6 +5,7 @@ import pickle
 import packet as pac
 import stop_wait_server as sws
 import selective_repeat_server as sr
+import go_back_n_server as gbn
 
 def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS,MAX_WINDOW):
 	print("Received packet from host ",rec_addr)
@@ -19,8 +20,12 @@ def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS,MAX_WINDOW):
 	# assume a stop-and-wait instance is used
 	# saw = sws.StopAndWait(packet.data, t_sock, rec_addr, TIMEOUT,P_LOSS)
 	# saw.send()
-	ser = sr.SelectiveRepeat(packet.data, t_sock, rec_addr, TIMEOUT, P_LOSS, MAX_WINDOW)
+	# ser = sr.SelectiveRepeat(packet.data, t_sock, rec_addr, TIMEOUT, P_LOSS, MAX_WINDOW)
+	# ser.send_file()
+
+	ser = gbn.GBNServer(packet.data, t_sock, rec_addr, TIMEOUT, P_LOSS, MAX_WINDOW)
 	ser.send_file()
+
 	print("Done sending, destroying connection")
 	t_sock.close()
 

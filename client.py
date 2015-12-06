@@ -4,6 +4,7 @@ import packet_gen as pac_gen
 import pickle as pick
 import stop_wait_client as swc
 import selective_repeat_client as sr
+import go_back_n_client as gbn
 
 CLIENT_IP = "127.0.0.1"
 BUF_SIZE = 4096
@@ -35,5 +36,8 @@ data, addr = sock.recvfrom(BUF_SIZE)
 # sw = swc.StopAndWait(FILE_DEST,sock, addr, TIMEOUT)
 # sw.recv_file()
 
-ser = sr.SelectiveRepeat(FILE_DEST, sock, addr, TIMEOUT, REC_WINDOW)
+# ser = sr.SelectiveRepeat(FILE_DEST, sock, addr, TIMEOUT, REC_WINDOW)
+# ser.recv_file()
+
+ser = gbn.GBNClient(FILE_DEST, sock, addr, TIMEOUT)
 ser.recv_file()
