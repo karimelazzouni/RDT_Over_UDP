@@ -14,7 +14,7 @@ class StopAndWait :
         self.socket         = sock
         self.dest           = server_addr
         self.time_out       = time_out
-        self.time_out_sock  = time_out*10 # Socket timeout is 10 times the packet timeout
+        self.time_out_sock  = time_out*100 # Socket timeout is 10 times the packet timeout
         self.file           = open(file_name, 'ab')
         self.socket.settimeout(self.time_out_sock)
 

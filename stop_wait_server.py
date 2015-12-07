@@ -13,7 +13,7 @@ class StopAndWait :
         self.dest           = rec_addr
         self.time_out       = time_out
         self.p_loss 		= p_loss
-        self.time_out_sock  = time_out*10 # Socket timeout is 10 times the packet timeout
+        self.time_out_sock  = time_out*100 # Socket timeout is 10 times the packet timeout
         self.gen            = pac_gen.PacketGen(file_name)
         self.timer 			= None
         self.socket.settimeout(self.time_out_sock)

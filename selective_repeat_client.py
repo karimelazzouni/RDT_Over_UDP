@@ -12,7 +12,7 @@ class SelectiveRepeat:
 		self.socket        = sock
 		self.dest          = server_addr
 		self.time_out      = time_out
-		self.sock_time_out = time_out*10
+		self.sock_time_out = time_out*100
 		self.list_size     = window_size
 		self.threshold	   = self.list_size/2
 		self.file          = open(file_name, 'ab')
@@ -80,6 +80,6 @@ class SelectiveRepeat:
 					print("File Received Successfully.")
 					self.file.close()
 					break
-			except self.socket.timeout:
+			except socket.timeout:
 				self.file.close()
 				break

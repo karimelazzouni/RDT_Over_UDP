@@ -32,6 +32,7 @@ pac_bytes = pick.dumps(packet)
 
 sock.sendto(pac_bytes, (SERVER_IP, SERVER_PORT))
 data, addr = sock.recvfrom(BUF_SIZE)
+print("New socket received: ",addr)
 # sw = swc.StopAndWait(FILE_DEST,sock, addr, TIMEOUT)
 # sw.recv_file()
 

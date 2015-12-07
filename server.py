@@ -19,8 +19,10 @@ def handler(packet, rec_addr,SERVER_IP,TIMEOUT,P_LOSS,MAX_WINDOW):
 	# assume a stop-and-wait instance is used
 	# saw = sws.StopAndWait(packet.data, t_sock, rec_addr, TIMEOUT,P_LOSS)
 	# saw.send()
+
 	ser = sr.SelectiveRepeat(packet.data, t_sock, rec_addr, TIMEOUT, P_LOSS, MAX_WINDOW)
 	ser.send_file()
+
 	print("Done sending, destroying connection")
 	t_sock.close()
 
@@ -46,6 +48,8 @@ if __name__ == "__main__":
 	i = 0
 	while 1:
 		print("Server is listening for connections")
+		print("IP\t: ",SERVER_IP)
+		print("PORT\t: ",SERVER_PORT)
 		packet, rec_addr = sock.recvfrom(BUF_SIZE)
 		p = pickle.loads(packet)
 
