@@ -40,8 +40,16 @@ class SelectiveRepeat:
             self.packt.timer_list.append(None)
             i = i + 1
         self.base_seqno = self.packt.packet_list[0].seqno
-        self.congest_log = open(self.CONGEST_LOG,'w')
-        self.congest_log.write(str(1)+" ")
+        self.congest_log = open(self.CONGEST_LOG,'w+')
+        self.initial_write_to_congestion()
+        self.congest_log.write(str(1)+";" + str(self.threshold)+"\n")
+        self.congest_log.flush()
+
+    def initial_write_to_congestion(self):
+        self.congest_log.write("##;##\n")
+        self.congest_log.write("@LiveGraph demo file.\n")
+        self.congest_log.write("Window_size;Threshold\n")
+        self.congest_log.flush()
 
     def fix_list(self) :
         if self.cur_list_size < self.threshold :
@@ -75,7 +83,8 @@ class SelectiveRepeat:
                 self.packt.timer_list.append(None)
                 self.send_packet(packet, len(self.packt.packet_list) - 1)
                 self.cur_list_size = self.cur_list_size + 1
-        self.congest_log.write(str(self.cur_list_size)+" ")
+        self.congest_log.write(str(self.cur_list_size)+";" + str(self.threshold)+"\n")
+        self.congest_log.flush()
 
     def get_index(self,ackno) :
         for i in range(0,len(self.packt.packet_list)) :
@@ -93,8 +102,8 @@ class SelectiveRepeat:
             if self.cur_list_size < self.list_size :
                  self.fix_list()
             else :
-                self.congest_log.write(str(self.cur_list_size)+" ")
-
+                self.congest_log.write(str(self.cur_list_size)+";" + str(self.threshold) + "\n")
+                self.congest_log.flush()
             if self.packt.ack_list[0] == 1:
                 while self.packt.ack_list[0] == 1:
                     self.packt.packet_list.pop(0)
@@ -179,12 +188,13 @@ class SelectiveRepeat:
                 self.packt.timer_list[i].cancel()
                 self.packt.unack_window_list.append(self.packt.packet_list[i])
 
-        self.congest_log.write(str(1)+" ")
         self.threshold = self.cur_list_size/2
         self.cur_list_size = 1
         self.packt.packet_list = []
         self.packt.ack_list = []
         self.packt.timer_list = []
+        self.congest_log.write(str(1)+";" + str(self.threshold)+"\n")
+        self.congest_log.flush()
 
         self.packt.packet_list.append(self.packt.unack_window_list.pop(0))
         self.packt.ack_list.append(0)
