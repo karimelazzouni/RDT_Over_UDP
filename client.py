@@ -16,7 +16,7 @@ def read_in(file_name) :
 		CLIENT_PORT = int(f.readline())
 		FILE_NAME = f.readline().rstrip('\n')
 		REC_WINDOW = int(f.readline())
-		TIMEOUT = int(f.readline())
+		TIMEOUT = float(f.readline())
 		MODE = f.readline().rstrip('\n')
 	return (SERVER_IP,SERVER_PORT,CLIENT_IP,CLIENT_PORT,FILE_NAME,REC_WINDOW, TIMEOUT,MODE)
 

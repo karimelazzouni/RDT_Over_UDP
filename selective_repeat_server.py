@@ -40,7 +40,7 @@ class SelectiveRepeat:
             self.packt.timer_list.append(None)
             i = i + 1
         self.base_seqno = self.packt.packet_list[0].seqno
-        self.congest_log = open(self.CONGEST_LOG,'w+')
+        self.congest_log = open(self.CONGEST_LOG + str(self.dest),'w+')
         self.initial_write_to_congestion()
         self.congest_log.write(str(1)+";" + str(self.threshold)+"\n")
         self.congest_log.flush()

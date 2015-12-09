@@ -36,7 +36,7 @@ def read_in(file_name) :
 		SERVER_PORT = int(f.readline())
 		MAX_WINDOW = int(f.readline())
 		P_LOSS = float(f.readline())
-		TIMEOUT = int(f.readline())
+		TIMEOUT = float(f.readline())
 		MODE = f.readline().rstrip('\n')
 	return (SERVER_IP,SERVER_PORT,MAX_WINDOW,P_LOSS,TIMEOUT,MODE)
 		
